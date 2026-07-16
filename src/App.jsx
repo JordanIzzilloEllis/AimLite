@@ -1,12 +1,13 @@
 import { useCallback, useEffect, useState } from 'react'
 import Menu from './components/Menu.jsx'
-import Game from './components/Game.jsx'
+import Game3D from './components/Game3D.jsx'
 import GameOver from './components/GameOver.jsx'
-import { DEFAULT_DIFFICULTY } from './config.js'
+import { DEFAULT_DIFFICULTY, DEFAULT_SENS_MULT } from './config.js'
 import { sound } from './sound.js'
 import './App.css'
 
-const HIGH_SCORE_KEY = 'webaim.highscores'
+const HIGH_SCORE_KEY = 'webaim.highscores.v2'
+const SENS_KEY = 'webaim.sens'
 
 function loadHighScores() {
   try {
@@ -16,10 +17,15 @@ function loadHighScores() {
   }
 }
 
+function loadSens() {
+  const v = parseFloat(localStorage.getItem(SENS_KEY))
+  return Number.isFinite(v) ? v : DEFAULT_SENS_MULT
+}
+
 export default function App() {
-  // 'menu' | 'playing' | 'over'
   const [screen, setScreen] = useState('menu')
   const [difficulty, setDifficulty] = useState(DEFAULT_DIFFICULTY)
+  const [sensMult, setSensMult] = useState(loadSens)
   const [muted, setMuted] = useState(false)
   const [results, setResults] = useState(null)
   const [highScores, setHighScores] = useState(loadHighScores)
@@ -27,6 +33,15 @@ export default function App() {
   useEffect(() => {
     sound.setEnabled(!muted)
   }, [muted])
+
+  const changeSens = useCallback((v) => {
+    setSensMult(v)
+    try {
+      localStorage.setItem(SENS_KEY, String(v))
+    } catch {
+      /* ignore */
+    }
+  }, [])
 
   const startGame = useCallback((diffKey) => {
     sound.init()
@@ -36,31 +51,23 @@ export default function App() {
     setScreen('playing')
   }, [])
 
-  const endGame = useCallback(
-    (finalResults) => {
-      sound.gameOver(finalResults.completed)
-      setResults(finalResults)
-      setScreen('over')
+  const endGame = useCallback((finalResults) => {
+    sound.gameOver(finalResults.completed)
+    setResults(finalResults)
+    setScreen('over')
 
-      // Persist a per-difficulty best score (targets hit, tie-broken by accuracy).
-      setHighScores((prev) => {
-        const best = prev[finalResults.difficulty]
-        const isBetter =
-          !best ||
-          finalResults.hits > best.hits ||
-          (finalResults.hits === best.hits && finalResults.accuracy > best.accuracy)
-        if (!isBetter) return prev
-        const next = { ...prev, [finalResults.difficulty]: finalResults }
-        try {
-          localStorage.setItem(HIGH_SCORE_KEY, JSON.stringify(next))
-        } catch {
-          /* ignore storage errors */
-        }
-        return next
-      })
-    },
-    [],
-  )
+    setHighScores((prev) => {
+      const best = prev[finalResults.difficulty]
+      if (best && best.score >= finalResults.score) return prev
+      const next = { ...prev, [finalResults.difficulty]: finalResults }
+      try {
+        localStorage.setItem(HIGH_SCORE_KEY, JSON.stringify(next))
+      } catch {
+        /* ignore storage errors */
+      }
+      return next
+    })
+  }, [])
 
   const goToMenu = useCallback(() => setScreen('menu'), [])
   const playAgain = useCallback(() => startGame(difficulty), [difficulty, startGame])
@@ -78,11 +85,16 @@ export default function App() {
       </button>
 
       {screen === 'menu' && (
-        <Menu onStart={startGame} highScores={highScores} />
+        <Menu
+          onStart={startGame}
+          highScores={highScores}
+          sensMult={sensMult}
+          onSensChange={changeSens}
+        />
       )}
 
       {screen === 'playing' && (
-        <Game difficulty={difficulty} onEnd={endGame} onQuit={goToMenu} />
+        <Game3D difficulty={difficulty} sensMult={sensMult} onEnd={endGame} onQuit={goToMenu} />
       )}
 
       {screen === 'over' && results && (

@@ -1,7 +1,13 @@
 import { useState } from 'react'
-import { DIFFICULTIES, DEFAULT_DIFFICULTY, TARGET_COUNT } from '../config.js'
+import {
+  DIFFICULTIES,
+  DEFAULT_DIFFICULTY,
+  TARGET_COUNT,
+  SENS_MIN,
+  SENS_MAX,
+} from '../config.js'
 
-export default function Menu({ onStart, highScores }) {
+export default function Menu({ onStart, highScores, sensMult, onSensChange }) {
   const [selected, setSelected] = useState(DEFAULT_DIFFICULTY)
   const diff = DIFFICULTIES[selected]
 
@@ -11,7 +17,7 @@ export default function Menu({ onStart, highScores }) {
         <span className="title-web">WEB</span>
         <span className="title-aim">AIM</span>
       </h1>
-      <p className="tagline">Hit {TARGET_COUNT} targets before the clock hits zero.</p>
+      <p className="tagline">Peek &amp; hide flick trainer — tag {TARGET_COUNT} targets before the clock dies.</p>
 
       <div className="difficulty-picker">
         {Object.values(DIFFICULTIES).map((d) => {
@@ -25,15 +31,27 @@ export default function Menu({ onStart, highScores }) {
             >
               <span className="diff-label">{d.label}</span>
               <span className="diff-time">{d.time}s</span>
-              <span className="diff-meta">{TARGET_COUNT} targets</span>
-              {best && (
-                <span className="diff-best">
-                  Best: {best.hits}/{TARGET_COUNT} · {Math.round(best.accuracy * 100)}%
-                </span>
-              )}
+              <span className="diff-meta">{d.exposure}s exposure</span>
+              {best && <span className="diff-best">Best: {best.score.toLocaleString()}</span>}
             </button>
           )
         })}
+      </div>
+
+      <div className="sens-row">
+        <label className="sens-label" htmlFor="sens">Sensitivity</label>
+        <input
+          id="sens"
+          className="sens-slider"
+          type="range"
+          min={SENS_MIN}
+          max={SENS_MAX}
+          step={0.05}
+          value={sensMult}
+          onChange={(e) => onSensChange(parseFloat(e.target.value))}
+          style={{ '--accent': diff.accent }}
+        />
+        <span className="sens-value">{sensMult.toFixed(2)}×</span>
       </div>
 
       <button
@@ -44,7 +62,10 @@ export default function Menu({ onStart, highScores }) {
         ▶ START
       </button>
 
-      <p className="hint">Click the glowing targets as fast as you can. Missed clicks hurt your accuracy.</p>
+      <p className="hint">
+        Click to lock your aim, move the mouse to look, left-click to fire. Headshots score big —
+        but crates and corners will block your shots and hide the enemy.
+      </p>
     </div>
   )
 }

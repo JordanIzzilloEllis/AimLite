@@ -3,20 +3,17 @@ import { DIFFICULTIES, TARGET_COUNT } from '../config.js'
 export default function GameOver({ results, highScore, onPlayAgain, onMenu }) {
   const diff = DIFFICULTIES[results.difficulty]
   const accuracyPct = Math.round(results.accuracy * 100)
-  const isRecord =
-    highScore &&
-    highScore.hits === results.hits &&
-    Math.abs(highScore.accuracy - results.accuracy) < 1e-9
+  const hsRatePct = Math.round(results.headshotRate * 100)
+  const isRecord = highScore && highScore.score === results.score
 
-  const headline = results.completed ? 'ALL TARGETS DOWN!' : "TIME'S UP"
+  const headline = results.completed ? 'ROUND CLEARED' : "TIME'S UP"
 
-  // Simple grade based on hits and accuracy.
   const grade = (() => {
     const ratio = results.hits / TARGET_COUNT
-    if (results.completed && accuracyPct >= 95) return 'S'
-    if (ratio >= 0.9 && accuracyPct >= 85) return 'A'
-    if (ratio >= 0.7) return 'B'
-    if (ratio >= 0.5) return 'C'
+    if (results.completed && accuracyPct >= 90 && results.headshotRate >= 0.5) return 'S'
+    if (ratio >= 0.85 && accuracyPct >= 70) return 'A'
+    if (ratio >= 0.65) return 'B'
+    if (ratio >= 0.4) return 'C'
     return 'D'
   })()
 
@@ -24,15 +21,20 @@ export default function GameOver({ results, highScore, onPlayAgain, onMenu }) {
     <div className="screen gameover" style={{ '--accent': diff.accent }}>
       <h2 className={`gameover-title ${results.completed ? 'win' : ''}`}>{headline}</h2>
 
+      <div className="score-headline">
+        <span className="score-headline-value">{results.score.toLocaleString()}</span>
+        <span className="score-headline-label">POINTS</span>
+      </div>
+
       <div className="grade" data-grade={grade}>{grade}</div>
       {isRecord && <div className="new-record">★ NEW BEST ★</div>}
 
       <div className="results-grid">
         <Stat label="Targets Hit" value={`${results.hits}/${TARGET_COUNT}`} />
+        <Stat label="Headshots" value={`${results.headshots} (${hsRatePct}%)`} />
         <Stat label="Accuracy" value={`${accuracyPct}%`} />
         <Stat label="Best Combo" value={`×${results.bestCombo}`} />
-        <Stat label="Misses" value={results.misses} />
-        <Stat label="Time Used" value={`${results.timeUsed}s`} />
+        <Stat label="Escaped" value={results.escaped} />
         <Stat label="Difficulty" value={diff.label} />
       </div>
 

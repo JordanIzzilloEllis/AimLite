@@ -79,12 +79,31 @@ class SoundEngine {
     src.stop(t + duration)
   }
 
-  // Satisfying "hit" pop — pitch climbs with the current combo.
+  // Satisfying body-hit "pop" — pitch climbs with the current combo.
   hit(combo = 0) {
     const base = 520
     const freq = base + Math.min(combo, 20) * 42
     this._tone({ freq, glideTo: freq * 1.6, type: 'triangle', duration: 0.12, gain: 0.35 })
     this._tone({ freq: freq * 2, type: 'sine', duration: 0.08, gain: 0.12 })
+  }
+
+  // Headshot — a brighter, bell-like double "ding" that cuts through.
+  headshot(combo = 0) {
+    const base = 900 + Math.min(combo, 20) * 30
+    this._tone({ freq: base, type: 'sine', duration: 0.14, gain: 0.32 })
+    this._tone({ freq: base * 1.5, type: 'sine', duration: 0.18, gain: 0.22 })
+    setTimeout(() => this._tone({ freq: base * 2, type: 'sine', duration: 0.12, gain: 0.16 }), 45)
+  }
+
+  // Short, punchy gunshot played on every trigger pull.
+  gunshot() {
+    this._noise({ duration: 0.09, gain: 0.28, freq: 2600 })
+    this._tone({ freq: 220, glideTo: 90, type: 'square', duration: 0.07, gain: 0.14 })
+  }
+
+  // A target that ducked back before you could tag it.
+  escape() {
+    this._tone({ freq: 300, glideTo: 160, type: 'sine', duration: 0.16, gain: 0.12 })
   }
 
   miss() {

@@ -1,26 +1,38 @@
 # WebAim 🎯
 
-A gamified browser **aim trainer** built with React + Vite. Click glowing neon
-targets as fast as you can before the clock runs out.
+A **Counter-Strike-style 3D aim trainer** in the browser, built with React +
+Vite + Three.js. Lock your aim, flick onto humanoid targets peeking from behind
+cover, and go for the headshots before the clock runs out.
 
 ## Game mode
 
-**Time Attack** (default): hit **20 targets** before the countdown reaches zero.
-Choose your difficulty:
+**Peek & Hide** (default): humanoid targets pop out from behind pillars and
+corners, hold for a short exposure window, then duck back. Tag **20 targets**
+before the countdown reaches zero.
 
-| Difficulty | Time | Target size |
-| ---------- | ---- | ----------- |
-| Easy       | 40s  | Large       |
-| Medium     | 30s  | Medium      |
-| Hard       | 20s  | Small       |
+| Difficulty | Time | Exposure window |
+| ---------- | ---- | --------------- |
+| Easy       | 45s  | 1.50s           |
+| Medium     | 35s  | 1.05s           |
+| Hard       | 25s  | 0.75s           |
 
 Features:
 
-- 🔊 Synthesized "hit" sounds (Web Audio API) that rise in pitch with your combo
-- 💥 Particle bursts and screen juice on every hit
-- 📊 Live HUD: score, accuracy, combo, and a countdown bar
+- 🖱️ **FPS mouse-look** with pointer lock and a fixed center crosshair (aim_botz feel)
+- 🧍 **Humanoid targets** with a real **head hitbox** — headshots score 2.5× a body shot
+- 📦 **3D cover**: crates, pillars, and corners physically block your shots (raycast occlusion)
+- 🫣 **Peek-and-hide AI**: targets expose briefly then retreat — miss the window and they escape
+- 🔊 Synthesized gunshots, combo-scaling body pops, and a bright headshot "ding"
+- 🎚️ Adjustable **mouse sensitivity**
+- 📊 Live HUD: score, targets, headshots, combo, countdown bar
 - 🏆 Per-difficulty best scores saved in your browser
-- 🎖️ End-of-run grade (S / A / B / C / D)
+- 🎖️ End-of-run grade (S / A / B / C / D) with headshot % and accuracy
+
+## Controls
+
+- **Click** the scene to lock your aim and start (also resumes after a pause)
+- **Move the mouse** to look around · **Left-click** to fire
+- **Esc** releases the mouse (pauses the round)
 
 ## Getting started
 
@@ -40,21 +52,25 @@ npm run preview  # preview the production build
 src/
   main.jsx           # React entry point
   App.jsx            # top-level screen state machine (menu / playing / over)
-  config.js          # difficulty + target-count settings
+  config.js          # difficulty, scoring, cover layout, camera settings
   sound.js           # synthesized Web Audio sound engine
   index.css          # global reset + neon theme
-  App.css            # component styles
+  App.css            # component + HUD + crosshair styles
   components/
-    Menu.jsx         # start screen + difficulty picker
-    Game.jsx         # playfield, spawning, timer, scoring
-    Target.jsx       # a single clickable target
-    Burst.jsx        # hit particle effect
+    Menu.jsx         # start screen: difficulty + sensitivity
+    Game3D.jsx       # game loop, scoring, HUD overlay, crosshair, Canvas
     Hud.jsx          # in-game heads-up display
     GameOver.jsx     # results + grade screen
+  three/
+    GameScene.jsx    # first-person controls (pointer lock) + fire raycast
+    Environment.jsx  # arena: floor, walls, cover pillars, crates
+    Target3D.jsx     # peek-and-hide animation wrapper
+    Humanoid.jsx     # low-poly figure with head/body hitboxes
 ```
 
 ## Roadmap ideas
 
-- Additional modes (endless, precision, moving targets)
+- More modes (endless, precision/one-tap, spray control, moving targets)
+- Strafing targets that peek *and* reposition
 - Global/online leaderboards
-- Sensitivity + crosshair customization
+- Loadout of crosshair styles, recoil, and reload feel
