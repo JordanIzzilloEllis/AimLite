@@ -1,8 +1,10 @@
-# WebAim 🎯
+# AimLite 🎯
 
-A **Counter-Strike-style 3D aim trainer** in the browser, built with React +
-Vite + Three.js. Lock your aim, flick onto humanoid targets peeking from behind
-cover, and go for the headshots before the clock runs out.
+A lightweight **Counter-Strike-style 3D aim trainer** in the browser, built with
+React + Vite + Three.js. Lock your aim, flick onto humanoid targets peeking from
+behind cover, and go for the headshots before the clock runs out.
+
+**▶️ Play it: https://jordanizzilloellis.github.io/AimLite/**
 
 ## Game mode
 
@@ -45,6 +47,13 @@ npm run dev      # start the dev server (opens the browser)
 npm run build    # production build into dist/
 npm run preview  # preview the production build
 ```
+
+## Deployment
+
+Every push to `main` is built and published to **GitHub Pages** by the workflow
+in [.github/workflows/deploy.yml](.github/workflows/deploy.yml). The production
+build uses a `/AimLite/` base path (see [vite.config.js](vite.config.js)) to
+match the Pages subpath — keep that in sync if the repo is ever renamed.
 
 ## Project structure
 

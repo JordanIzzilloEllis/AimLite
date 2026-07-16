@@ -14,8 +14,8 @@ export default function Menu({ onStart, highScores, sensMult, onSensChange }) {
   return (
     <div className="screen menu">
       <h1 className="title">
-        <span className="title-web">WEB</span>
-        <span className="title-aim">AIM</span>
+        <span className="title-web">AIM</span>
+        <span className="title-aim">LITE</span>
       </h1>
       <p className="tagline">Peek &amp; hide flick trainer — tag {TARGET_COUNT} targets before the clock dies.</p>
 
