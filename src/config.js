@@ -45,7 +45,7 @@ export const MAX_PITCH = 0.6 // ~34° up/down
 export const PEEK_DISTANCE = 0.9
 
 // Humanoid targets are scaled down for a tighter arena / harder shots.
-export const TARGET_SCALE = 0.82
+export const TARGET_SCALE = 0.68
 // Head-height of a target (local model head y * scale), used for line-of-sight.
 export const TARGET_HEAD_Y = 1.66 * TARGET_SCALE
 
