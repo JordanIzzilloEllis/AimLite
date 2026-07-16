@@ -1,0 +1,56 @@
+:root {
+  --bg: #0a0a14;
+  --bg-2: #12122a;
+  --fg: #e8e8ff;
+  --muted: #8a8ab5;
+  --accent: #22d3ff;
+
+  color-scheme: dark;
+  font-family: 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  width: 100%;
+}
+
+body {
+  background:
+    radial-gradient(circle at 20% 20%, rgba(34, 211, 255, 0.08), transparent 45%),
+    radial-gradient(circle at 80% 80%, rgba(255, 62, 165, 0.08), transparent 45%),
+    var(--bg);
+  color: var(--fg);
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Subtle animated grid backdrop for arcade feel. */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(120, 140, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(120, 140, 255, 0.05) 1px, transparent 1px);
+  background-size: 44px 44px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: inherit;
+}
