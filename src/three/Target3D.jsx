@@ -1,7 +1,7 @@
 import { useMemo, useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import Humanoid from './Humanoid.jsx'
-import { RISE_TIME, HIDE_TIME, PEEK_DISTANCE, PLAYER_POS } from '../config.js'
+import { RISE_TIME, HIDE_TIME, PEEK_DISTANCE, PLAYER_POS, TARGET_SCALE } from '../config.js'
 
 // Animates a humanoid sliding out sideways from behind its cover pillar,
 // holding for the exposure window, then ducking back. The timing is driven off
@@ -9,13 +9,14 @@ import { RISE_TIME, HIDE_TIME, PEEK_DISTANCE, PLAYER_POS } from '../config.js'
 export default function Target3D({ spot, exposure, accent, spawnAtClock, clockRef }) {
   const groupRef = useRef(null)
 
-  const { hiddenX, exposedX, baseZ, faceY } = useMemo(() => {
+  const { hiddenX, exposedX, baseZ, baseY, faceY } = useMemo(() => {
     const hx = spot.pos[0]
     const ex = hx + spot.side * PEEK_DISTANCE
     const bz = spot.pos[1] - 0.2 // behind the pillar (pillar sits at pos + 0.2)
+    const by = spot.elev || 0 // stand on the ledge/platform
     // Rotate to roughly face the player so the head/chest read correctly.
     const fy = Math.atan2(PLAYER_POS[0] - ex, PLAYER_POS[2] - bz)
-    return { hiddenX: hx, exposedX: ex, baseZ: bz, faceY: fy }
+    return { hiddenX: hx, exposedX: ex, baseZ: bz, baseY: by, faceY: fy }
   }, [spot])
 
   useFrame(() => {
@@ -37,7 +38,7 @@ export default function Target3D({ spot, exposure, accent, spawnAtClock, clockRe
   })
 
   return (
-    <group ref={groupRef} position={[hiddenX, 0, baseZ]} rotation={[0, faceY, 0]}>
+    <group ref={groupRef} position={[hiddenX, baseY, baseZ]} rotation={[0, faceY, 0]} scale={TARGET_SCALE}>
       <Humanoid accent={accent} />
     </group>
   )

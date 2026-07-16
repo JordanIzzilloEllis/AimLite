@@ -29,6 +29,7 @@ export default function Game3D({ difficulty, sensMult, onEnd, onQuit }) {
   const rafRef = useRef(0)
   const lastSpotRef = useRef(-1)
   const targetSeq = useRef(0)
+  const spotPickerRef = useRef(null)
 
   // Authoritative mutable game state (the rAF loop mutates this directly).
   const g = useRef(null)
@@ -76,10 +77,16 @@ export default function Game3D({ difficulty, sensMult, onEnd, onQuit }) {
 
   const spawn = useCallback(() => {
     const s = g.current
-    // Pick a cover spot different from the previous one.
-    let idx = Math.floor(Math.random() * COVER_SPOTS.length)
-    if (COVER_SPOTS.length > 1 && idx === lastSpotRef.current) {
-      idx = (idx + 1 + Math.floor(Math.random() * (COVER_SPOTS.length - 1))) % COVER_SPOTS.length
+    // Prefer the scene's line-of-sight-aware picker so targets are never fully
+    // hidden behind cover; fall back to random if the scene isn't ready yet.
+    let idx
+    if (spotPickerRef.current) {
+      idx = spotPickerRef.current(lastSpotRef.current)
+    } else {
+      idx = Math.floor(Math.random() * COVER_SPOTS.length)
+      if (COVER_SPOTS.length > 1 && idx === lastSpotRef.current) {
+        idx = (idx + 1 + Math.floor(Math.random() * (COVER_SPOTS.length - 1))) % COVER_SPOTS.length
+      }
     }
     lastSpotRef.current = idx
     const t = {
@@ -228,10 +235,10 @@ export default function Game3D({ difficulty, sensMult, onEnd, onQuit }) {
         shadows
         camera={{ position: PLAYER_POS, fov: CAMERA_FOV }}
         gl={{ antialias: true }}
-        style={{ background: '#0a0a14' }}
+        style={{ background: '#bcd9ec' }}
       >
-        <color attach="background" args={['#0a0a14']} />
-        <fog attach="fog" args={['#0a0a14', 10, 26]} />
+        <color attach="background" args={['#bcd9ec']} />
+        <fog attach="fog" args={['#cddfeb', 18, 42]} />
         <GameScene
           target={target}
           exposure={diff.exposure}
@@ -240,6 +247,7 @@ export default function Game3D({ difficulty, sensMult, onEnd, onQuit }) {
           clockRef={clockRef}
           onFire={handleFire}
           onLockChange={handleLockChange}
+          spotPickerRef={spotPickerRef}
         />
       </Canvas>
 

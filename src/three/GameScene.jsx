@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
-import { Vector2 } from 'three'
+import { Vector2, Vector3, Raycaster } from 'three'
 import Environment from './Environment.jsx'
 import Target3D from './Target3D.jsx'
 import {
@@ -9,15 +9,67 @@ import {
   MAX_PITCH,
   CAMERA_FOV,
   PLAYER_POS,
+  PEEK_DISTANCE,
+  COVER_SPOTS,
+  TARGET_HEAD_Y,
 } from '../config.js'
 
 // Lives inside <Canvas>. Owns the first-person camera (pointer-lock mouse-look),
 // the fire raycast from the crosshair, and renders the arena + active target.
-export default function GameScene({ target, exposure, accent, sensMult, clockRef, onFire, onLockChange }) {
+export default function GameScene({
+  target,
+  exposure,
+  accent,
+  sensMult,
+  clockRef,
+  onFire,
+  onLockChange,
+  spotPickerRef,
+}) {
   const { camera, gl, scene, raycaster } = useThree()
   const yaw = useRef(0)
   const pitch = useRef(0)
   const locked = useRef(false)
+  const losRay = useRef(new Raycaster())
+
+  // Expose a spot picker to the game loop that only returns spawn spots the
+  // player has a clear line of sight to the target's HEAD (so head-only peeks
+  // are valid, but nothing spawns fully hidden behind cover and escapes unseen).
+  spotPickerRef.current = (excludeIndex) => {
+    const obstacles = []
+    scene.traverse((o) => {
+      if (o.isMesh && o.userData && o.userData.kind === 'obstacle') obstacles.push(o)
+    })
+
+    const hasLineOfSight = (point) => {
+      const dir = point.clone().sub(camera.position)
+      const dist = dir.length()
+      dir.normalize()
+      losRay.current.set(camera.position, dir)
+      losRay.current.far = dist - 0.2 // stop just short of the target
+      return losRay.current.intersectObjects(obstacles, false).length === 0
+    }
+
+    // Random order so visible spots still vary between rounds.
+    const order = [...COVER_SPOTS.keys()]
+    for (let i = order.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1))
+      ;[order[i], order[j]] = [order[j], order[i]]
+    }
+
+    let fallback = -1
+    for (const i of order) {
+      const spot = COVER_SPOTS[i]
+      const ex = spot.pos[0] + spot.side * PEEK_DISTANCE
+      const head = new Vector3(ex, (spot.elev || 0) + TARGET_HEAD_Y, spot.pos[1] - 0.2)
+      if (hasLineOfSight(head)) {
+        if (i !== excludeIndex) return i
+        if (fallback === -1) fallback = i
+      }
+    }
+    // Only the just-used spot is visible (or somehow none) — take what we can.
+    return fallback !== -1 ? fallback : order[0]
+  }
 
   // Keep the latest fire handler without re-binding listeners every render.
   const onFireRef = useRef(onFire)

@@ -1,11 +1,13 @@
 :root {
-  --bg: #0a0a14;
-  --bg-2: #12122a;
-  --fg: #e8e8ff;
-  --muted: #8a8ab5;
-  --accent: #22d3ff;
+  --bg: #ece3d2;
+  --bg-2: #f6efe0;
+  --fg: #2b2620;
+  --muted: #7a7060;
+  --panel: rgba(255, 255, 255, 0.66);
+  --panel-border: rgba(90, 70, 40, 0.18);
+  --accent: #e0552b;
 
-  color-scheme: dark;
+  color-scheme: light;
   font-family: 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
 }
@@ -24,27 +26,15 @@ body,
 }
 
 body {
+  /* Warm daylight: pale sky up top fading down into sunlit sand. */
   background:
-    radial-gradient(circle at 20% 20%, rgba(34, 211, 255, 0.08), transparent 45%),
-    radial-gradient(circle at 80% 80%, rgba(255, 62, 165, 0.08), transparent 45%),
-    var(--bg);
+    radial-gradient(circle at 50% 12%, rgba(255, 247, 224, 0.7), transparent 55%),
+    linear-gradient(180deg, #bcd9ec 0%, #d8e4dd 34%, #ece0c8 68%, #e4d3b3 100%);
+  background-attachment: fixed;
   color: var(--fg);
   overflow: hidden;
   user-select: none;
   -webkit-user-select: none;
-}
-
-/* Subtle animated grid backdrop for arcade feel. */
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background-image:
-    linear-gradient(rgba(120, 140, 255, 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(120, 140, 255, 0.05) 1px, transparent 1px);
-  background-size: 44px 44px;
-  pointer-events: none;
-  z-index: 0;
 }
 
 button {

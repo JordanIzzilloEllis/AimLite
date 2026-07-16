@@ -31,7 +31,7 @@ export default function Humanoid({ accent = '#ff3ea5' }) {
         <meshStandardMaterial
           color={accent}
           emissive={accent}
-          emissiveIntensity={0.4}
+          emissiveIntensity={0.12}
           roughness={0.5}
         />
       </mesh>
