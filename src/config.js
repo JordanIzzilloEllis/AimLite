@@ -100,17 +100,25 @@ export const SENS_MAX = 2.5
 // this page, so DPI cancels out of the turn-rate math entirely — it's only
 // used here to show the eDPI reference number players may recognize
 // (eDPI = DPI × sensitivity), not to compute anything.
-// Caveat inherent to any browser-based trainer: this only matches exactly
-// if the OS mouse is set to its neutral/no-acceleration mode (Windows:
-// pointer speed at the default 6/11 notch, "Enhance pointer precision"
-// off) — same setup competitive players already run so their raw input
-// isn't altered by OS pointer accel.
+// Caveat inherent to any browser-based trainer, formula aside: a web page
+// can only ever see what the OS hands the browser through Pointer Lock
+// (`movementX`/`movementY`), never the raw HID counts CS2 reads directly —
+// so even with the formula exactly right, OS mouse settings, display
+// scaling, or browser-specific input handling can still scale that number
+// up or down before it ever reaches this page. There's no way to detect or
+// correct for that from JS, so CS2_CALIBRATION exists as a manual escape
+// hatch: a player-tuned multiplier that absorbs whatever fixed scaling
+// factor their system introduces, found empirically once (e.g. matching a
+// real 180° turn) rather than assumed.
 export const CS_M_YAW = 0.022
 export const CS2_SENS_MIN = 0.01
 export const CS2_SENS_MAX = 8.0
 export const DPI_MIN = 100
 export const DPI_MAX = 32000
 export const DEFAULT_DPI = 800
+export const DEFAULT_CS2_CALIBRATION = 1.0
+export const CS2_CALIBRATION_MIN = 0.1
+export const CS2_CALIBRATION_MAX = 4.0
 
 // Which sensitivity source is active is an explicit choice (SENS_MODE_BASIC
 // / SENS_MODE_CS2), not inferred from whether a CS2 value happens to be
@@ -127,8 +135,10 @@ export function cs2SensToRadPerPixel(cs2Sens) {
 
 // The value actually fed to the camera each frame. Falls back to the basic
 // slider if CS2 mode is selected but no sensitivity has been entered yet.
-export function effectiveSensRadPerPixel({ sensMult, cs2Sens, sensMode }) {
-  if (sensMode === SENS_MODE_CS2 && cs2Sens != null) return cs2SensToRadPerPixel(cs2Sens)
+export function effectiveSensRadPerPixel({ sensMult, cs2Sens, sensMode, cs2Calibration }) {
+  if (sensMode === SENS_MODE_CS2 && cs2Sens != null) {
+    return cs2SensToRadPerPixel(cs2Sens) * (cs2Calibration ?? DEFAULT_CS2_CALIBRATION)
+  }
   return BASE_SENSITIVITY * sensMult
 }
 

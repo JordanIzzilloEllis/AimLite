@@ -7,6 +7,7 @@ import {
   DEFAULT_DIFFICULTY,
   DEFAULT_SENS_MULT,
   DEFAULT_SENS_MODE,
+  DEFAULT_CS2_CALIBRATION,
   SENS_MODE_BASIC,
   SENS_MODE_CS2,
   effectiveSensRadPerPixel,
@@ -21,6 +22,7 @@ const DEFAULT_SETTINGS = {
   sensMult: DEFAULT_SENS_MULT,
   cs2Sens: null,
   cs2Dpi: null,
+  cs2Calibration: DEFAULT_CS2_CALIBRATION,
   sensMode: DEFAULT_SENS_MODE,
 }
 
@@ -39,6 +41,7 @@ function loadSettings() {
       sensMult: Number.isFinite(raw?.sensMult) ? raw.sensMult : DEFAULT_SETTINGS.sensMult,
       cs2Sens: Number.isFinite(raw?.cs2Sens) ? raw.cs2Sens : null,
       cs2Dpi: Number.isFinite(raw?.cs2Dpi) ? raw.cs2Dpi : null,
+      cs2Calibration: Number.isFinite(raw?.cs2Calibration) ? raw.cs2Calibration : DEFAULT_CS2_CALIBRATION,
       sensMode: raw?.sensMode === SENS_MODE_CS2 ? SENS_MODE_CS2 : SENS_MODE_BASIC,
     }
   } catch {

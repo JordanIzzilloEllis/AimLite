@@ -6,6 +6,8 @@ import {
   CS2_SENS_MAX,
   DPI_MIN,
   DPI_MAX,
+  CS2_CALIBRATION_MIN,
+  CS2_CALIBRATION_MAX,
   SENS_MODE_BASIC,
   SENS_MODE_CS2,
 } from '../config.js'
@@ -158,9 +160,30 @@ export default function Settings({ settings, onChange, onReset, onBack }) {
 
           <p className="settings-hint settings-hint-small">
             DPI only affects the eDPI figure above, not the turn rate itself — the same physical
-            mouse movement produces the same turn in CS2 and here regardless of DPI. For an exact
-            match, make sure Windows mouse acceleration is off and pointer speed is at its default
-            (6/11) notch.
+            mouse movement should produce the same turn in CS2 and here regardless of DPI. In
+            practice it can still feel off: a browser only ever sees mouse movement the way your OS
+            hands it over, not the raw input CS2 reads directly, so a fixed scaling difference can
+            creep in depending on your system. That's what Calibration below is for.
+          </p>
+
+          <div className="sens-row">
+            <label className="sens-label" htmlFor="cs2-cal">Calibration</label>
+            <input
+              id="cs2-cal"
+              className="sens-slider"
+              type="range"
+              min={CS2_CALIBRATION_MIN}
+              max={CS2_CALIBRATION_MAX}
+              step={0.01}
+              value={settings.cs2Calibration}
+              onChange={(e) => onChange({ cs2Calibration: parseFloat(e.target.value) })}
+            />
+            <span className="sens-value">{settings.cs2Calibration.toFixed(2)}×</span>
+          </div>
+          <p className="settings-hint settings-hint-small">
+            If turning here doesn't match CS2 at the same sensitivity, tune this until it does —
+            turn a full 180° in CS2, then repeat the exact same physical mouse swipe here.
+            Overshooting the 180°? Lower it. Undershooting? Raise it.
           </p>
         </div>
       </div>

@@ -324,6 +324,23 @@ log for full diffs.
     `closeSettings` returns to it. `results` state isn't touched by this
     navigation (only `startGame`/quick-restart clear it), so returning to
     'over' after a Settings detour still shows the same round's results.
+18. **CS2 calibration multiplier.** The user compared real CS2 against
+    AimLite's CS2 mode at the identical sensitivity value and it felt
+    noticeably slower here. The turn-rate *formula* (#15) is correct — the
+    actual gap is that a browser page can only ever see mouse movement the
+    way the OS hands it over via Pointer Lock (`movementX`/`movementY`),
+    never the raw HID counts CS2 reads directly. Whatever fixed scaling an
+    individual system's OS mouse settings, display scaling, or browser
+    input handling introduces between those two is invisible to JS — there
+    is no API to detect or correct for it automatically, so rather than
+    guess at a "typical" correction factor (which would be as likely to be
+    wrong as the plain formula), added `cs2Calibration` as a manual,
+    per-player-tuned multiplier (default 1.0, range 0.1–4.0) applied on top
+    of `cs2SensToRadPerPixel` in `effectiveSensRadPerPixel`. `Settings.jsx`
+    exposes it as a slider with instructions to calibrate empirically — turn
+    a real 180° in CS2, repeat the same physical swipe here, adjust until
+    they match — since that's the only way to actually verify the match
+    given the browser can't self-diagnose the discrepancy.
 
 ## Working conventions
 
